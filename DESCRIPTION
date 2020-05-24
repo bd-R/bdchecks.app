@@ -32,6 +32,7 @@ Authors@R: c(
 Maintainer: Thiloshon Nagarajah <thiloshon@gmail.com>
 License: GPL-3
 Encoding: UTF-8
+Depends: R (>= 3.2)
 LazyData: true
 Imports:
     DT,
