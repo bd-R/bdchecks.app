@@ -21,59 +21,61 @@ mod_configure_checks_ui <- function(id) {
   components <- list()
   
   for (check in bdchecks::data.checks@dc_body) {
-    components[[length(components) + 1]] <- tagList(
-    div(
-      class = paste("element-item checksListContent", darwinCoreClass[check@name, ]$group),
-      
-      HTML(
-        paste(
-          "<input type=checkbox name=", ns("typeInput"), " value=", check@name, ">"
-        )
-      ),
-      
-      fluidRow(column(6, div(h4(check@name), class = "leftSide")), column(6, div("", class = "rightSide"))), 
-      
-      conditionalPanel(
-        "input['bdChecksConfigure-showDetailed'] == true",
+    if(check@information$check_type=="tdwg_standard"){
+      components[[length(components) + 1]] <- tagList(
         div(
-          fluidRow(
-            div(class = "checksListTopic col-sm-4", p("Description: ")),
-            div(class = "checksListTitle col-sm-8",
-                p(check@information$description))
+          class = paste("element-item checksListContent", darwinCoreClass[check@name, ]$group),
+          
+          HTML(
+            paste(
+              "<input type=checkbox name=", ns("typeInput"), " value=", check@name, ">"
+            )
           ),
           
-          fluidRow(
-            div(class = "checksListTopic col-sm-4", p("Sample Passing Data: ")),
-            div(class = "checksListTitle col-sm-8",
-                p(paste(check@example$pass, check@example$input_pass)))
-          ),
+          fluidRow(column(6, div(h4(check@name), class = "leftSide")), column(6, div("", class = "rightSide"))), 
           
-          fluidRow(
-            div(class = "checksListTopic col-sm-4", p("Sample Failing Data: ")),
-            div(class = "checksListTitle col-sm-8",
-                p(paste(check@example$fail, check@example$input_fail)))
-          ),
-          
-          fluidRow(
-            div(class = "checksListTopic col-sm-4", p("Category of Check: ")),
-            div(class = "checksListTitle col-sm-8",
-                p(check@information$darwin_core_class))
-          ),
-          
-          fluidRow(
-            div(class = "checksListTopic col-sm-4", p("DWC Field Targetted: ")),
-            div(class = "checksListTitle col-sm-8",
-                p(check@input$target))
-          ),
-          
-          fluidRow(
-            div(class = "checksListTopic col-sm-4", p("Sorting Flags: ")),
-            div(class = "checksListTitle col-sm-8",
-                p(check@information$keywords))
+          conditionalPanel(
+            "input['bdChecksConfigure-showDetailed'] == true",
+            div(
+              fluidRow(
+                div(class = "checksListTopic col-sm-4", p("Description: ")),
+                div(class = "checksListTitle col-sm-8",
+                    p(check@information$description))
+              ),
+              
+              fluidRow(
+                div(class = "checksListTopic col-sm-4", p("Sample Passing Data: ")),
+                div(class = "checksListTitle col-sm-8",
+                    p(paste(check@example$pass, check@example$input_pass)))
+              ),
+              
+              fluidRow(
+                div(class = "checksListTopic col-sm-4", p("Sample Failing Data: ")),
+                div(class = "checksListTitle col-sm-8",
+                    p(paste(check@example$fail, check@example$input_fail)))
+              ),
+              
+              fluidRow(
+                div(class = "checksListTopic col-sm-4", p("Category of Check: ")),
+                div(class = "checksListTitle col-sm-8",
+                    p(check@information$darwin_core_class))
+              ),
+              
+              fluidRow(
+                div(class = "checksListTopic col-sm-4", p("DWC Field Targetted: ")),
+                div(class = "checksListTitle col-sm-8",
+                    p(check@input$target))
+              ),
+              
+              fluidRow(
+                div(class = "checksListTopic col-sm-4", p("Sorting Flags: ")),
+                div(class = "checksListTitle col-sm-8",
+                    p(check@information$keywords))
+              )
+            )
           )
-        )
-      )
-    ))
+        ))
+    }
   }
   
   tagList(column(
