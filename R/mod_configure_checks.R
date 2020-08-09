@@ -21,17 +21,22 @@ mod_configure_checks_ui <- function(id) {
   components <- list()
   
   for (check in bdchecks::data.checks@dc_body) {
-    components[[length(components) + 1]] <- tagList(
-    div(
-      class = paste("element-item checksListContent", darwinCoreClass[check@name, ]$group),
+    components[[length(components) + 1]] <- tagList(div(
+      class = paste("element-item checksListContent", darwinCoreClass[check@name,]$group),
       
       HTML(
         paste(
-          "<input type=checkbox name=", ns("typeInput"), " value=", check@name, ">"
+          "<input type=checkbox name=",
+          ns("typeInput"),
+          " value=",
+          check@name,
+          ">"
         )
       ),
       
-      fluidRow(column(6, div(h4(check@name), class = "leftSide")), column(6, div("", class = "rightSide"))), 
+      fluidRow(column(6, div(
+        h4(check@name), class = "leftSide"
+      )), column(6, div("", class = "rightSide"))),
       
       conditionalPanel(
         "input['bdChecksConfigure-showDetailed'] == true",
@@ -45,19 +50,25 @@ mod_configure_checks_ui <- function(id) {
           fluidRow(
             div(class = "checksListTopic col-sm-4", p("Sample Passing Data: ")),
             div(class = "checksListTitle col-sm-8",
-                p(paste(check@example$pass, check@example$input_pass)))
+                p(
+                  paste(check@example$pass, check@example$input_pass)
+                ))
           ),
           
           fluidRow(
             div(class = "checksListTopic col-sm-4", p("Sample Failing Data: ")),
             div(class = "checksListTitle col-sm-8",
-                p(paste(check@example$fail, check@example$input_fail)))
+                p(
+                  paste(check@example$fail, check@example$input_fail)
+                ))
           ),
           
           fluidRow(
             div(class = "checksListTopic col-sm-4", p("Category of Check: ")),
             div(class = "checksListTitle col-sm-8",
-                p(check@information$darwin_core_class))
+                p(
+                  check@information$darwin_core_class
+                ))
           ),
           
           fluidRow(
@@ -110,9 +121,9 @@ mod_configure_checks_ui <- function(id) {
           "data-sort-value" = ".event"
         ),
         actionButton(
-          "filterByOccurence",
+          "filterByOccurrence",
           class = "button is-checked ",
-          label = "Occurence",
+          label = "Occurrence",
           "data-sort-value" = ".occurrence"
         ),
         actionButton(
@@ -134,16 +145,11 @@ mod_configure_checks_ui <- function(id) {
       column(
         4,
         p("Quick Options:"),
-        actionButton(
-          ns("all"),
-          label = "Select All"
-        ),
-        actionButton(
-          ns("none"),
-          label = "Deselect All"
-        )
+        actionButton(ns("all"),
+                     label = "Select All"),
+        actionButton(ns("none"),
+                     label = "Deselect All")
       )
-     
     )),
     
     div(id = ns("typeInput"),
@@ -161,6 +167,8 @@ mod_configure_checks_ui <- function(id) {
 #' @keywords internal
 mod_configure_checks_server <- function(input, output, session) {
   ns <- session$ns
+  classes <- get_dc_groups("DarwinCoreClass")
+  values <- NULL
   
   returnData <- character()
   
@@ -168,25 +176,44 @@ mod_configure_checks_server <- function(input, output, session) {
     returnData <<- input$typeInput
   })
   
-  
   observeEvent(input$showDetailed, {
     shinyjs::runjs("$grid.isotope( 'reloadItems' ).isotope();")
   })
   
   observeEvent(input$all, {
-    updateCheckboxGroupInput(
-      session,
-      "typeInput",
-      selected = names(bdchecks::data.checks@dc_body)
-    )
+    if (input$currentSort == "All" ||
+        input$currentSort == "AllLocationTaxonEventOccurrenceRecord-level Terms") {
+      names <- names(bdchecks::data.checks@dc_body)
+    } else {
+      names  <-
+        as.character(classes[classes$groupName == tolower(input$currentSort), 1])
+    }
+    
+    if (!is.null(values)) {
+      names <- union(names, values)
+    }
+    values <<- names
+    updateCheckboxGroupInput(session,
+                             "typeInput",
+                             selected = names)
   })
   
   observeEvent(input$none, {
-    updateCheckboxGroupInput(
-      session,
-      "typeInput",
-      selected = names(bdchecks::data.checks@dc_body[1000])
-    )
+    if (input$currentSort == "All" ||
+        input$currentSort == "AllLocationTaxonEventOccurrenceRecord-level Terms") {
+      values <<- NA
+    } else {
+      values  <<-
+        setdiff(values,
+                as.character(classes[classes$groupName == tolower(input$currentSort), 1]))
+      if (length(values) == 0) {
+        values <<- NA
+      }
+    }
+    
+    updateCheckboxGroupInput(session,
+                             "typeInput",
+                             selected = values)
   })
   
   returnDataReact <- reactive({
@@ -196,7 +223,5 @@ mod_configure_checks_server <- function(input, output, session) {
     returnData
   })
   
-  
   return(returnDataReact)
-  
 }
