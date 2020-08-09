@@ -22,3 +22,16 @@ $('.btn-group').each( function( i, buttonGroup ) {
     $( this ).addClass('is-checked');
   });
 });
+
+$( document ).on("shiny:sessioninitialized", function(event) {
+  document.getElementById("bdChecksConfigure-all").addEventListener('click', function() {
+     Shiny.setInputValue("bdChecksConfigure-currentSort", $('.btn-group > .is-checked').text()); 
+  });
+});
+
+$( document ).on("shiny:sessioninitialized", function(event) {
+  document.getElementById("bdChecksConfigure-none").addEventListener('click', function() {
+     Shiny.setInputValue("bdChecksConfigure-currentSort", $('.btn-group > .is-checked').text()); 
+  });
+});
+       
