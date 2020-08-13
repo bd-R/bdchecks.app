@@ -126,9 +126,9 @@ mod_configure_checks_ui <- function(id) {
           "data-sort-value" = ".event"
         ),
         actionButton(
-          "filterByOccurence",
+          "filterByOccurrence",
           class = "button is-checked ",
-          label = "Occurence",
+          label = "Occurrence",
           "data-sort-value" = ".occurrence"
         ),
         actionButton(
@@ -173,6 +173,8 @@ mod_configure_checks_ui <- function(id) {
 #' @keywords internal
 mod_configure_checks_server <- function(input, output, session) {
   ns <- session$ns
+  classes <- get_dc_groups("DarwinCoreClass")
+  values <- NULL
   
   returnData <- character()
   
@@ -186,15 +188,40 @@ mod_configure_checks_server <- function(input, output, session) {
   })
   
   observeEvent(input$all, {
+    if (input$currentSort == "All" ||
+        input$currentSort == "AllLocationTaxonEventOccurrenceRecord-level Terms") {
+      names <- names(bdchecks::data.checks@dc_body)
+    } else {
+      names  <-
+        as.character(classes[classes$groupName == tolower(input$currentSort), 1])
+    }
+    
+    if (!is.null(values)) {
+      names <- union(names, values)
+    }
+    values <<- names
+    
     updateCheckboxGroupInput(session,
                              "typeInput",
-                             selected = names(bdchecks::data.checks@dc_body))
+                             selected = names)
   })
   
   observeEvent(input$none, {
+    if (input$currentSort == "All" ||
+        input$currentSort == "AllLocationTaxonEventOccurrenceRecord-level Terms") {
+      values <<- NA
+    } else {
+      values  <<-
+        setdiff(values,
+                as.character(classes[classes$groupName == tolower(input$currentSort), 1]))
+      if (length(values) == 0) {
+        values <<- NA
+      }
+    }
+    
     updateCheckboxGroupInput(session,
                              "typeInput",
-                             selected = names(bdchecks::data.checks@dc_body[1000]))
+                             selected = values)
   })
   
   returnDataReact <- reactive({
