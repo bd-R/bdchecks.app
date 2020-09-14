@@ -26,7 +26,7 @@ yaml_to_dataframe <- function(path){
     a <- split(check[3:(length(check) - 1)], 1:(length(check) - 3))
     
     m <- lapply(a, function(g) {
-      strsplit(strsplit(strsplit(g, "\\[")[[1]][2], "\\]")[[1]][1], ",")[[1]]
+      strsplit(strsplit(strsplit(g, "\\[")[[1]][2], "\\]")[[1]][1], ",(?=(?:[^\']*\'[^\']*\')*[^\']*$)", perl = T)[[1]]
     })
     
     y <- t(as.data.frame(m))
