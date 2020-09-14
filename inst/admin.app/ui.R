@@ -1,6 +1,7 @@
 library(shiny)
 library(shinydashboard)
 library(yaml)
+library(shinyjs)
 
 shinyUI(fluidPage(
 
