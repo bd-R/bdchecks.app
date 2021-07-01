@@ -11,4 +11,4 @@
 # Run the application
 
 
-options(golem.app.prod = FALSE); golem::detach_all_attached(); golem::document_and_reload(); bdchecks.app::run_app()
+options(golem.app.prod = FALSE); golem::detach_all_attached(); golem::document_and_reload(); bdchecks.app::bdchecks_app()
