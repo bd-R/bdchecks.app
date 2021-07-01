@@ -62,7 +62,7 @@ mod_perform_checks_ui <- function(id) {
 #' @rdname mod_perform_checks
 #' @export
 #' @keywords internal
-#' @import bdchecks shinyjs DT
+#' @import bdchecks shinyjs DT bdutilities
 mod_perform_checks_server <- function(input, output, session, user_data, quality_checks) {
   ns <- session$ns
   
@@ -97,7 +97,7 @@ mod_perform_checks_server <- function(input, output, session, user_data, quality
     }
     
     summary_filter <- bdchecks:::dc_filter_generate(check_summary, input$summaryTable_cells_selected)
-    clean_data <<- bdchecks:::dc_filter(check_result, summary_filter)
+    clean_data <<- bdchecks:::dc_filter(bdutilities::return_core(user_data), check_result, summary_filter)
     
     showNotification("Filters Applied!",
                      duration = 6) 
