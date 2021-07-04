@@ -3,6 +3,7 @@ library(shinyjs)
 library(DT)
 library(rhandsontable)
 library(yaml)
+library(bdchecks)
 
 source("functions.R")
 
@@ -100,7 +101,32 @@ shinyServer(function(input, output, session) {
                                         column(
                                             12,
                                             div(class = "secondaryHeaders", h3("Edit Test Data")),
-                                            rHandsontableOutput(paste0(checks[[i]]$name, "_table"))
+                                            rHandsontableOutput(paste0(checks[[i]]$name, "_table")),
+                                            
+                                            div(class = "secondaryHeaders", h3("Run Manual Test")),
+                                            column(
+                                                3,
+                                                textInput(paste0(checks[[i]]$name, "_test_val"),
+                                                          label = "Value"
+                                                )
+                                            ),
+                                            column(
+                                                3,
+                                                selectInput(
+                                                    paste0(checks[[i]]$name, "_test_exp"),
+                                                    label = "Expected",
+                                                    c("Pass", "Fail")
+                                                ),
+                                                offset = 1
+                                            ),
+                                            column(
+                                                2,
+                                                actionButton(paste0(checks[[i]]$name, "_test_btn"), "Test!")
+                                            ),
+                                            column(
+                                                3,
+                                                textOutput(paste0(checks[[i]]$name, "_test_result"))
+                                            )
                                         )
                                     ),
                                     
@@ -163,6 +189,43 @@ shinyServer(function(input, output, session) {
         tests[[checks[[1]]$name]]
     }
     
+
+    
+    lapply(1:length(checks), function(index) {
+        observeEvent(input[[paste0(checks[[index]]$name, "_test_btn")]], {
+            
+            withProgress(message = "Testing Custom Case", {
+                
+                script_path <- paste0(
+                    write_path,
+                    "/R",
+                    "/dc_",
+                    checks[[index]]$name,
+                    ".R"
+                )
+                source(script_path)
+                
+                script <- paste(readLines(script_path), collapse = "")
+                function_list <- strsplit(script, "<- function", fixed = T)[[1]]
+                head_list <- strsplit(function_list[1], " ", fixed = T)[[1]]
+                result <- do.call(head_list[length(head_list)], list(input[[paste0(checks[[index]]$name, "_test_val")]]))
+                
+                out <- "Fail"
+                if(result == TRUE || result == "TRUE") {
+                    out <- "Pass"
+                }
+                output[[paste0(checks[[index]]$name, "_test_result")]] <<-
+                    renderText({
+                        if (out == input[[paste0(checks[[index]]$name, "_test_exp")]]) {
+                            "Test Passed!"
+                        } else {
+                            "Test Failed"
+                        }})
+            })
+            })
+    })
+    
+    
     lapply(1:length(checks), function(index) {
         output[[paste0(checks[[index]]$name, "_table")]] <-
             renderRHandsontable({
@@ -173,7 +236,6 @@ shinyServer(function(input, output, session) {
                 }
             })
     })
-    
     
     observe({
         lapply(1:length(checks), function(index) {
