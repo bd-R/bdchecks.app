@@ -1,12 +1,3 @@
-##### CONFIGURATIONS ###########
-
-.GlobalEnv$.bdchecksLocation <- "/cloud/project/bdchecks-master"
-# give the root of bdchecks package "~/RProjects/bdchecks/"
-.GlobalEnv$.saveToOrigin <- TRUE
-
-##### CONFIGURATIONS ###########
-
-
 yaml_to_dataframe <- function(path){
   rawLines <- readLines(path)
   

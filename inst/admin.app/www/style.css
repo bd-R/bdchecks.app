@@ -44,6 +44,21 @@ hr {
     color: #87ad88;
 }   
 
+.col-sm-2 .btn {
+  margin-top: 25px;
+}
+
+.col-sm-3 .shiny-text-output{
+    margin-top: 30px;
+}
+
+.shiny-notification{
+    position: fixed;
+    top: 80%;
+    left: 33%;
+    right: 33%;
+    opacity: 1;
+}
 
 .skin-blue .main-header .navbar {
    background-color: #87ad88;
