@@ -18,7 +18,7 @@ mod_perform_checks_ui <- function(id) {
   tagList(column(12,
                  div(
                    id = "cleanPane",
-                   h1("Perform Cleaning"),
+                   h1("Perform Data Checks"),
           
                    column(
                      12,
@@ -51,6 +51,11 @@ mod_perform_checks_ui <- function(id) {
                      column(
                        12,
                        DT::dataTableOutput(ns("summaryTable"))
+                     ),
+                     br(),
+                     column(
+                       12,
+                       uiOutput(ns("notPerformed"))
                      )
                    )
                    
@@ -69,24 +74,30 @@ mod_perform_checks_server <- function(input, output, session, user_data, quality
   check_result <- list()
   check_summary <- data.frame()
   clean_data <- data.frame()
+  not_performed <- data.frame()
   
   observeEvent(input$perform, {
-    if (length(bdutilities::return_core(user_data)) == 0 || length(quality_checks()) == 0) {
-      showNotification("Please add data and checks first",
-                       duration = 6)
+    withProgress(message = "Performing Data Checks", {
+      if (length(bdutilities::return_core(user_data)) == 0 || length(quality_checks()) == 0) {
+        showNotification("Please add data and checks first",
+                         duration = 6)
+        
+        return()
+      }
       
-      return()
-    }
+      check_result <<-
+        bdchecks::perform_dc(bdutilities::return_core(user_data), quality_checks())
+      
+      check_summary <<-
+        bdchecks::summary_dc(check_result, fancy = FALSE, filtering_dt = TRUE)
+      
+      not_performed <<- check_result@not_performed
+      
+      shinyjs::runjs(code = paste('$("#', ns("accept"), '").addClass("activeButton");', sep = ""))
+      shinyjs::runjs(code = paste('$("#', ns("perform"), '").removeClass("activeButton");', sep = ""))
+      shinyjs::runjs(code = paste('$("#', ns("perform"), '").addClass("readyButton");', sep = ""))
+    })
     
-    check_result <<-
-      bdchecks::perform_dc(bdutilities::return_core(user_data), quality_checks())
-    
-    check_summary <<-
-      bdchecks::summary_dc(check_result, fancy = FALSE, filtering_dt = TRUE)
-    
-    shinyjs::runjs(code = paste('$("#', ns("accept"), '").addClass("activeButton");', sep = ""))
-    shinyjs::runjs(code = paste('$("#', ns("perform"), '").removeClass("activeButton");', sep = ""))
-    shinyjs::runjs(code = paste('$("#', ns("perform"), '").addClass("readyButton");', sep = ""))
   })
   
   observeEvent(input$accept, {
@@ -113,7 +124,6 @@ mod_perform_checks_server <- function(input, output, session, user_data, quality
       input$perform
       check_summary
     },
-    rownames = FALSE,
     options = list(pageLength = 100,
                    columnDefs = list(
                      list(className = "no_select",
@@ -128,6 +138,16 @@ mod_perform_checks_server <- function(input, output, session, user_data, quality
     }});"
     ))
   )
+  
+  output$notPerformed <- renderUI({
+    input$perform
+    if (nrow(not_performed) > 0) {
+      return(tagList(
+        h2("Skipped Data Checks"),
+        DT::datatable(not_performed)
+      ))
+    }
+  })
   
   
   output$download <- shiny::downloadHandler(

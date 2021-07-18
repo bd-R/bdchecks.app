@@ -1,8 +1,8 @@
 Package: bdchecks.app
 Title: A User-Friendly Graphical Interface for Managing Biodiversity Data Quality Checks
 Description: Shiny App giving complete workflow to selectively perform datachecks.
-Version: 0.2.7
-Date: 2021-07-08
+Version: 0.2.8
+Date: 2021-07-18
 Authors@R: c(
     person(
         "Tomer", "Gueta", 
