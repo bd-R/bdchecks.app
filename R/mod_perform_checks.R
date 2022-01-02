@@ -40,7 +40,7 @@ mod_perform_checks_ui <- function(id) {
                          actionButton(ns("failed"), "Select All Failed Records", width = "14%"),
                          actionButton(ns("missed"), "Select All Missing Records", width = "14%"),
                          actionButton(ns("clear"), "Clear Selections", width = "14%"),
-                         actionButton(ns("accept"), "Filter Out Selected", width = "14%"),
+                         actionButton(ns("accept"), "Remove Selected Data", width = "14%"),
                          downloadButton(ns("download"), "Download Data", width = "14%")
                        )
                        
@@ -166,7 +166,7 @@ mod_perform_checks_server <- function(input, output, session, user_data, quality
     if (length(a) == 0)
       a <- NULL
     
-    DT::selectCells(proxy, rbind(cbind(1:nrow(check_summary), 2), a))
+    DT::selectCells(proxy, rbind(cbind(1:nrow(check_summary), 3), a))
   })
   
   observeEvent(input$failed, {
@@ -174,7 +174,7 @@ mod_perform_checks_server <- function(input, output, session, user_data, quality
     if (length(a) == 0)
       a <- NULL
     
-    DT::selectCells(proxy, rbind(cbind(1:nrow(check_summary), 3), a))
+    DT::selectCells(proxy, rbind(cbind(1:nrow(check_summary), 4), a))
   })
   
   observeEvent(input$missed, {
@@ -182,7 +182,7 @@ mod_perform_checks_server <- function(input, output, session, user_data, quality
     if (length(a) == 0)
       a <- NULL
     
-    DT::selectCells(proxy, rbind(cbind(1:nrow(check_summary), 4), a))
+    DT::selectCells(proxy, rbind(cbind(1:nrow(check_summary), 5), a))
   })
   
   observeEvent(input$clear, {
